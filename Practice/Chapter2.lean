@@ -1,5 +1,6 @@
 import Mathlib
-
-example (a b c ∈ ℝ ) : a * b * c = b * (a * c) := by
-rw [mul_comm a b]
-rw [mul_assoc b a c]
+example (a b c d e f : ℝ) (h : a * b = c * d) (h' : e = f) : a * (b * e) = c * (d * f) := by
+    rw [h']
+    rw [← mul_assoc]
+    rw [h]
+    rw [mul_assoc]
