@@ -97,8 +97,36 @@ example : FnHasUb f → FnHasUb g → FnHasUb fun x ↦ f x + g x := by
     · apply ubfa
     · apply ubgb
 
+example (h : ∀ a, ∃ x, f x ≥ a) : ¬ FnHasUb f := by
+    intro h'
+    rcases h' with ⟨a, ubf⟩
+    rcases h (a+1) with ⟨x , hx⟩
+    have : f x ≤ a := ubf x
+    linarith
+--   have ll : a+1 ≤ f x := hx
+--    have kk : f x ≤ a := ubf x
+--    have imp : a+1 ≤ a := le_trans ll kk
+--    apply lt_irrefl a
+--    linarith
 
 
+example (h : ¬FnHasUb f) : ∀ a, ∃ x, f x > a := by
+    intro a
+    by_contra h'
+    apply h
+    use a
+    show FnUb f a
+    intro x
+    by_contra h''
+    have h''_str : f x > a := lt_of_not_ge h''
+    exact h' ⟨x, h''_str⟩
+
+example (h : ¬FnHasUb f) : ∀ a, ∃ x, f x > a := by
+--    dsimp only [FnHasUb, FnUb] at h
+ --   push_neg at h
+ --   exact h
+    contrapose! h
+    exact h
 end Hello
 
 example : ∃ x : ℝ , 2 < x ∧ x < 3 :=
@@ -122,3 +150,62 @@ theorem SumSq_Mul {x y : α} (sosx : SumSq x) (sosy : SumSq y) : SumSq (x * y) :
     rw [xeq, yeq]
     exact ⟨a * c - b * d , a * d + b * c
     , by ring⟩
+
+end SquareSum
+
+namespace negation
+variable {α : Type*} [LinearOrder α]
+example {a b : α} (h : a < b) : ¬ b < a := by
+    intro (h' : b < a)
+    have : a < a := lt_trans h h'
+    apply lt_irrefl a
+    exact this
+
+end negation
+
+namespace prop
+variable {α : Type*} (P : α → Prop) (Q : Prop)
+
+example (h : ¬ ∃ x , P x) : ∀ x , ¬ P x := by
+    intro x
+    by_contra h'
+    exact h ⟨x, h'⟩
+
+--    intro x
+--    intro hP
+--    have h_ex : ∃ x , P x := ⟨x, hP⟩
+--    exact h h_ex
+example (h : ∀ x, ¬ P x) : ¬ ∃ x , P x := by
+    by_contra h'
+    rcases h' with ⟨x, h'' ⟩
+    have hP_neg : ¬ P x := h x
+    exact hP_neg h''
+--   intro h'
+--    rcases h' with ⟨x , h'P⟩
+--    have h_neg : ¬ P x := h x
+--    exact h_neg h'P
+
+
+example (h :¬ ∀ x,  P x) :  ∃ x ,¬ P x := by
+    by_contra h'
+    apply h
+    intro x
+    show P x
+    by_contra h''
+    have h'_neg : ∃ x , ¬ P x := ⟨x, h''⟩
+    exact h' h'_neg
+
+
+
+
+
+example (h : ∃ x,¬ P x) : ¬ ∀  x , P x := by
+    by_contra h'
+    rcases h with ⟨x, h_neg⟩
+    have : P x := h' x
+    exact h_neg this
+--    intro h'
+--    rcases h with ⟨x, hP_neg⟩
+ --   have hP : P x := h' x
+ --   exact hP_neg hP
+end prop
