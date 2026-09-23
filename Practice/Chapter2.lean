@@ -125,6 +125,7 @@ example (h : ¬FnHasUb f) : ∀ a, ∃ x, f x > a := by
 --    dsimp only [FnHasUb, FnUb] at h
  --   push_neg at h
  --   exact h
+    dsimp only [FnHasUb, FnUb] at h
     contrapose! h
     exact h
 end Hello
@@ -209,3 +210,13 @@ example (h : ∃ x,¬ P x) : ¬ ∀  x , P x := by
  --   have hP : P x := h' x
  --   exact hP_neg hP
 end prop
+
+namespace Chapter_4_2
+variable { α β : Type*}
+variable {f : α → β}
+variable (s t : Set α)
+variable (u v : Set β)
+
+
+
+end Chapter_4_2
