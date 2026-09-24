@@ -211,6 +211,26 @@ example (h : ∃ x,¬ P x) : ¬ ∀  x , P x := by
  --   exact hP_neg hP
 end prop
 
+
+namespace Chapter_3_4
+example {x y : ℝ} (h_0 : x ≤ y) (h_1 : ¬ y ≤ x) : x ≤ y ∧ x ≠ y :=
+    have h : x ≠ y := by
+        contrapose! h_1
+        rw [h_1]
+    ⟨h_0, h⟩
+    --    constructor
+ --   · assumption
+  --  intro h
+   -- apply h_1
+--    rw[h]
+
+example {x y : ℝ} : x ≤ y ∧  x ≠ y → ¬ y ≤ x := by
+    rintro ⟨h_0, h_1⟩ h'
+    exact h_1 (le_antisymm h_0 h')
+end Chapter_3_4
+
+
+
 namespace Chapter_4_2
 variable { α β : Type*}
 variable {f : α → β}
