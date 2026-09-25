@@ -227,9 +227,64 @@ example {x y : ℝ} (h_0 : x ≤ y) (h_1 : ¬ y ≤ x) : x ≤ y ∧ x ≠ y :=
 example {x y : ℝ} : x ≤ y ∧  x ≠ y → ¬ y ≤ x := by
     rintro ⟨h_0, h_1⟩ h'
     exact h_1 (le_antisymm h_0 h')
+
+example {x y : ℝ} (h : x ≤ y) : ¬ y ≤ x ↔ x ≠ y := by
+    constructor
+    · contrapose!
+      rintro rfl
+      rfl
+    contrapose!
+    apply le_antisymm h
+
+variable {α : Type*} [PartialOrder α]
+variable (a b : α)
+
+example : a < b ↔ a ≤ b ∧ a ≠ b := by
+    rw [lt_iff_le_not_ge]
+    constructor
+    rintro ⟨h₀,h₁⟩
+    constructor
+    assumption
+    intro h_eq
+    subst h_eq
+    exact h₁ (le_refl a)
+    rintro ⟨ h₂,h₃⟩
+    constructor
+    assumption
+    intro h₄
+    exact h₃ (le_antisymm h₂ h₄)
+
+
 end Chapter_3_4
 
+namespace Chapter_3_5
 
+example (P : Prop) : ¬¬P → P := by
+    intro h
+    cases em P
+    · assumption
+    · contradiction
+
+
+example (P Q : Prop) : P → Q ↔ ¬P ∨ Q := by
+    constructor
+    intro h
+    by_cases hP : P
+    · right
+      exact h hP
+    · left
+      exact hP
+    intro h
+    intro hP
+    rcases h with h1 | h2
+    exfalso
+    exact h1 hP
+    exact h2
+
+
+
+
+end Chapter_3_5
 
 namespace Chapter_4_2
 variable { α β : Type*}
