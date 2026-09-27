@@ -3,6 +3,7 @@ import Mathlib.Data.Matrix.Basic
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Positivity
+import LeanProject.Families
 
 -- Suppose B is an n × n matrix of rational numbers
 variable {n : Type*} (B : n → n → ℚ)
