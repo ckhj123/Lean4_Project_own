@@ -1,5 +1,4 @@
 import LeanProject.SkewMatrixGraph
-
 /-!
 # Classification families
 
@@ -37,6 +36,7 @@ theorem cyclicRightShift_add {n : ℕ} {α : Type*}
   funext j
   simp only [cyclicRightShift, Function.iterate_add_apply]
 
+
 /-- Parameter range from the C-family source; it is not imposed on the raw definitions. -/
 def ValidC (n k : ℕ) : Prop :=
   1 ≤ k ∧ 3 ≤ n ∧ 2 * k < n
@@ -53,6 +53,7 @@ def cFirstRow (n k : ℕ) : Fin n → ℂ :=
 def cMatrix (n k : ℕ) : Matrix (Fin n) (Fin n) ℂ :=
   fun i => cyclicRightShift i.val (cFirstRow n k)
 
+
 /-- C_{n,k,I}: row i is T^i r(k - I_{i mod gcd(n,k)}).
 Boolean entries are converted using Bool.toNat; subtraction is in ℕ.
 The positivity witness is only needed to construct the periodic index. -/
@@ -61,6 +62,7 @@ def cMatrixI (n k : ℕ) (hd : 0 < Nat.gcd n k)
   fun i =>
     let idx : Fin (Nat.gcd n k) := ⟨i.val % Nat.gcd n k, Nat.mod_lt _ hd⟩
     cyclicRightShift i.val (cFirstRow n (k - (I idx).toNat))
+
 
 
 /-- The exceptional X₄ matrix, with indices 0,1,2,3 in the displayed source order.
@@ -119,7 +121,6 @@ theorem yRow_add_two (k i : ℕ) :
 def yMatrix (k : ℕ) :
     Matrix (Fin (2 * (2 * k + 1))) (Fin (2 * (2 * k + 1))) ℂ :=
   fun i => yRow k i.val
-
 
 /-- Z seed row r₀, preserving the source cutoff (N - 1) / 2 + 1. -/
 def zRow0 (k : ℕ) : Fin (5 * (2 * k + 1)) → ℂ :=
@@ -207,4 +208,5 @@ def zMatrix (k : ℕ) :
     Matrix (Fin (5 * (2 * k + 1))) (Fin (5 * (2 * k + 1))) ℂ :=
   fun i => zRow k i.val
 
+#eval (zMatrix 1)
 end SkewMatrixGraph
