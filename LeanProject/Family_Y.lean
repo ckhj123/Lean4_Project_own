@@ -2,6 +2,9 @@ import Mathlib
 import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.Fin.Basic
 
+/-!
+Construction on Family Y
+-/
 
 namespace Family_Y_n_k
 

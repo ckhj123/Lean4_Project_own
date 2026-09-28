@@ -3,6 +3,11 @@ import Mathlib.Data.Matrix.Basic
 import Mathlib.Data.Fin.Basic
 
 
+/-!
+Construction on Family Z
+-/
+
+
 namespace Family_Z_n_k
 
 def RowVector (n : ℕ) (α : Type) : Type := Fin n → α
