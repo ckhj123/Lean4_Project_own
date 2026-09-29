@@ -63,7 +63,7 @@ def cFirstRow_Z (n k : ℕ) : Fin n → ℤ :=
 
 /-Also define the Family C in ℤ to print the result-/
 def cMatrix_Z (n k : ℕ) : Matrix (Fin n) (Fin n) ℤ  :=
-  fun i => cyclicRightShift i.val (cFirstRow n k)
+  fun i => cyclicRightShift i.val (cFirstRow_Z n k)
 
 #eval (cMatrix_Z 5 1)
 
@@ -372,7 +372,7 @@ theorem zRow_three_Z (k : ℕ) : zRow_Z k 3 = zRow3_Z k := rfl
 theorem zRow_four_Z (k : ℕ) : zRow_Z k 4 = zRow4_Z k := rfl
 
 theorem zRow_add_five_Z (k i : ℕ) :
-    zRow k_Z (i + 5) = cyclicRightShift 5 (zRow_Z k i) := rfl
+    zRow_Z k (i + 5) = cyclicRightShift 5 (zRow_Z k i) := rfl
 
 /-- The Z-family Mathlib matrix over ℤ , of dimension N = 5(2k+1). -/
 def zMatrix_Z (k : ℕ) :
