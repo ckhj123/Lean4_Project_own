@@ -83,7 +83,8 @@ def cMatrixI_Z (n k : ℕ) (hd : 0 < Nat.gcd n k)
     let idx : Fin (Nat.gcd n k) := ⟨i.val % Nat.gcd n k, Nat.mod_lt _ hd⟩
     cyclicRightShift i.val (cFirstRow_Z n (k - (I idx).toNat))
 
-#eval cMatrixI_Z 9 3 {0 0 1}
+#eval cMatrixI_Z 9 3 (by decide) ![0, 0, 1]
+
 
 /-- The exceptional X₄ matrix, with indices 0,1,2,3 in the displayed source order.
 Source: Matviichuk, arXiv:2310.05284v1, Example 2.1.
