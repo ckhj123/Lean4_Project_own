@@ -51,7 +51,8 @@ def rowSumZ {n : ℕ} (A : Matrix (Fin n) (Fin n) ℤ) (i : Fin n) : ℤ  :=
 def AllRowSum_Z (B : Matrix (Fin n) (Fin n) ℤ) : Prop :=
   ∀ i : Fin n, rowSumZ B i = 0
 
-
+--this show that the permutation operator cyclicRightShift inheritage the propertry
+--that the row sum is still zero under permutation
 lemma Sum_cyclic_0 (k : ℕ) (v : Fin n → ℤ) (hv : ∑ j : Fin n, v j = 0) :
   ∑ j : Fin n, cyclicRightShift k v j = 0 := by
   dsimp [cyclicRightShift]
@@ -61,6 +62,7 @@ lemma Sum_cyclic_0 (k : ℕ) (v : Fin n → ℤ) (hv : ∑ j : Fin n, v j = 0) :
       Equiv.sum_comp ((finRotate n).symm ^ k) v
     _ = 0 := hv
 
+--Show that the first row sum of the matrix is 0
 
 theorem cFirstRow_Z_sum_zero (n k : ℕ) (hk : 2 * k < n) :
     ∑ j : Fin n, cFirstRow_Z n k j = 0 := by
