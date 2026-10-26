@@ -1,4 +1,4 @@
->**New Readme and also Research Documentation are moved to the new elliptic-curve-bundle-pdf-readme repo **
+>**New Readme and also Research Documentation are moved to the new elliptic-curve-bundle-pdf-readme repo**
 >
 > **WORK IN PROGRESS / DRAFT** 
 > This repository contains my personal research artifact notes, Lean 4 formalization code, and draft companion paper.
