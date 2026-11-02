@@ -215,10 +215,10 @@ private theorem z_seed_base (k : ℕ) [NeZero (5 * (2 * k + 1))]
     split_ifs <;> (try contradiction) <;> (try omega) <;> norm_num
 
 /-- The five Z seeds have three cutoff positions beyond their special first block. -/
-private def zSeedCutoff (k a : ℕ) : ℕ :=
+def zSeedCutoff (k a : ℕ) : ℕ :=
   if a < 2 then 5 * k + 3 else if a = 2 then 5 * k + 5 else 5 * k + 7
 
-private theorem zRow_large (k a : ℕ) (ha : a < 5)
+theorem zRow_large (k a : ℕ) (ha : a < 5)
     (j : Fin (5 * (2 * k + 1))) (hj : 5 ≤ j.val) :
     zRow k a j = if j.val < zSeedCutoff k a then 1 else -1 := by
   have hhalf : (5 * (2 * k + 1) - 1) / 2 = 5 * k + 2 := by omega
