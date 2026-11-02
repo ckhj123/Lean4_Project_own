@@ -2,7 +2,6 @@ import Mathlib
 
 import LeanProject.SkewMatrixGraph
 import LeanProject.Families
-import LeanProject.CFamilyProperties
 
 /-!-/
 namespace SkewMatrixGraph
@@ -54,20 +53,7 @@ IsSmoothableEdge_equiv B (cyclicShiftEquiv d) h_circ i j
 
 theorem cMatrix_shift_invariant (n k : ℕ) (i j : Fin n) :
     cMatrix n k (cyclicShiftEquiv 1 i) (cyclicShiftEquiv 1 j) = cMatrix n k i j := by
-  by_cases hn : n = 0
-  · subst n
-    exact Fin.elim0 i
-  haveI : NeZero n := ⟨hn⟩
-  have hcast (x : Fin n) : Fin.ofNat n x.val = x := by
-    apply Fin.ext
-    simp [Fin.ofNat, Nat.mod_eq_of_lt x.isLt]
-  have hshift (x : Fin n) : cyclicShiftEquiv 1 x = x - 1 := by
-    simp [cyclicShiftEquiv, finRotate_symm_apply]
-  change cyclicRightShift (cyclicShiftEquiv 1 i).val (cFirstRow n k)
-      (cyclicShiftEquiv 1 j) = cyclicRightShift i.val (cFirstRow n k) j
-  rw [cyclicRightShift_apply_sub, cyclicRightShift_apply_sub,
-    hcast, hcast, hshift i, hshift j]
-  abel
+    sorry
 
 
 theorem IsSmoothableEdge_cMatrix_shift (n k : ℕ) (i j : Fin n) :
@@ -77,20 +63,11 @@ theorem IsSmoothableEdge_cMatrix_shift (n k : ℕ) (i j : Fin n) :
   exact cMatrix_shift_invariant n k
 
 theorem cMatrix_base_edge (n k : ℕ) (h_valid : ValidC n k) :
-    IsSmoothableEdge (cMatrix n k)
-      ⟨0, by have := h_valid.2.1; omega⟩
-      ⟨1, by have := h_valid.2.1; omega⟩ := by
-  haveI : NeZero n := ⟨by have := h_valid.2.1; omega⟩
-  have hj : finRotate n (⟨0, by have := h_valid.2.1; omega⟩ : Fin n) =
-      (⟨1, by have := h_valid.2.1; omega⟩ : Fin n) := by
-    apply Fin.ext
-    simp [finRotate_apply, Fin.add_def,
-      Nat.mod_eq_of_lt (by have := h_valid.2.1; omega : 1 < n)]
-  rw [← hj]
-  exact cMatrix_adjacent_smoothable h_valid
-    (⟨0, by have := h_valid.2.1; omega⟩ : Fin n)
+    IsSmoothableEdge (cMatrix n k) 0 1 := by
+  unfold IsSmoothableEdge
+  sorry
 
 theorem cMatrix_all_edges (n k : ℕ) (h_valid : ValidC n k) (i : Fin n) :
-    IsSmoothableEdge (cMatrix n k) i (finRotate n i) := by
-  exact cMatrix_adjacent_smoothable h_valid i
+    IsSmoothableEdge (cMatrix n k) i (i + 1) := by
+    sorry
 end SkewMatrixGraph

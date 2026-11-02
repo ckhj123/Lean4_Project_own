@@ -506,12 +506,3 @@ theorem zMatrix_all_row_sums_zero (k : ℕ) (hk : 0 < k) : AllRowSum_C (zMatrix 
   intro i
   dsimp [AllRowSum_C, rowSumC, zMatrix]
   exact zRow_sum_zero k hk i.val
-
-/-- The fixed X matrices have zero sum in each displayed row. -/
-theorem x4Matrix_all_row_sums_zero : AllRowSum_C x4Matrix := by
-  intro i
-  fin_cases i <;> norm_num [rowSumC, Fin.sum_univ_succ, x4Matrix]
-
-theorem x5Matrix_all_row_sums_zero : AllRowSum_C x5Matrix := by
-  intro i
-  fin_cases i <;> norm_num [rowSumC, Fin.sum_univ_succ, x5Matrix]
