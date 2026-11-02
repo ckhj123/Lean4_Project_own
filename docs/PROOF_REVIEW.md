@@ -76,6 +76,15 @@ A search of the targeted proof files found no `sorry`, `admit`, or new
 axiom. The unrelated root `LeanProject.lean` has a pre-existing `sorry` and
 may emit a warning during the default build.
 
+After restoration commit `a06d0b0`, `ModifiedWork` was checked separately.
+`AddSumLemma.lean` matches Jason's `24c9659` blob exactly and
+`lake build LeanProject.AddSumLemma` succeeds. `Smooth_cycle.lean` matches
+his `c13d15d` blob exactly; its original three `sorry` placeholders remain.
+`lake build LeanProject.Smooth_cycle` fails on pre-existing elaboration of
+the generic `Fin n` numerals at lines 66 and 71 (`OfNat (Fin n)` cannot be
+inferred). The default `lake build` succeeds because it does not include
+that file. The restoration deliberately leaves Jason's source unchanged.
+
 The Z production extension at `k = 0` is not skew-symmetric; this is
 formalized by `zMatrix_zero_not_skewSymmetric`. The stated Z properties
 therefore use `k ≥ 1`. The Y row-sum and smoothability theorems also use
