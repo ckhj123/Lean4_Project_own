@@ -1,5 +1,11 @@
-import Mathlib
+import Mathlib.Order.Interval.Finset.Basic
 import LeanProject.Families
+
+/-
+Establish the RowSum equals zero for each representative matrix
+-/
+
+open Finset
 open SkewMatrixGraph
 open BigOperators
 
@@ -110,23 +116,19 @@ theorem yRow0_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, yRow0 k j = 0 := by
   let n := 2 * (2 * k + 1)
   have hn2 : 2 ≤ n / 2 := by dsimp [n]; omega
   have hn : n / 2 ≤ n := by dsimp [n]; omega
-
   -- 1. Bridge Fin sum to range sum
   have h_eq : ∑ j : Fin n, yRow0 k j = ∑ j ∈ Finset.range n, yRow0_nat k j := by
     change ∑ j : Fin n, yRow0_nat k j.val = ∑ j ∈ Finset.range n, yRow0_nat k j
     exact Fin.sum_univ_eq_sum_range (yRow0_nat k) n
   rw [h_eq]
-
   -- 2. Partition range n into [0, 2), [2, n/2), and [n/2, n)
   rw [← Finset.sum_range_add_sum_Ico (yRow0_nat k) hn]
   rw [← Finset.sum_range_add_sum_Ico (yRow0_nat k) hn2]
-
   -- Evaluate head interval [0, 2)
   have h_head : ∑ j ∈ Finset.range 2, yRow0_nat k j = 2 := by
     rw [Finset.sum_range_succ, Finset.sum_range_one]
     dsimp [yRow0_nat]
     ring
-
   -- Evaluate middle interval [2, n/2)
   have h_mid : ∑ j ∈ Finset.Ico 2 (n / 2), yRow0_nat k j = ((n / 2 - 2 : ℕ) : ℂ) := by
     have h_mid_eq : ∀ j ∈ Finset.Ico 2 (n / 2), yRow0_nat k j = 1 := by
@@ -140,7 +142,6 @@ theorem yRow0_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, yRow0 k j = 0 := by
       · rfl
     rw [Finset.sum_congr rfl h_mid_eq, Finset.sum_const]
     simp
-
   -- Evaluate tail interval [n/2, n)
   have h_tail : ∑ j ∈ Finset.Ico (n / 2) n, yRow0_nat k j = -((n - n / 2 : ℕ) : ℂ) := by
     have h_tail_eq : ∀ j ∈ Finset.Ico (n / 2) n, yRow0_nat k j = -1 := by
@@ -155,46 +156,37 @@ theorem yRow0_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, yRow0 k j = 0 := by
       · rfl
     rw [Finset.sum_congr rfl h_tail_eq, Finset.sum_const]
     simp
-
   rw [h_head, h_mid, h_tail]
-
   -- 3. Resolve natural subtraction BEFORE casting to ℂ
   have h1 : n / 2 - 2 = 2 * k - 1 := by dsimp [n]; omega
   have h2 : n - n / 2 = 2 * k + 1 := by dsimp [n]; omega
   rw [h1, h2]
-
   have hk_ge : 1 ≤ 2 * k := by omega
   rw [Nat.cast_sub hk_ge]
   push_cast
   ring
-
 -------------------------------------------------------------------------------
 -- Proof for deltaY and yRow1
 -------------------------------------------------------------------------------
 
 lemma deltaY_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j : Fin (2 * (2 * k + 1)), deltaY k j = 0 := by
   let n := 2 * (2 * k + 1)
-
   have h_eq : ∑ j : Fin n, deltaY k j = ∑ j ∈ Finset.range n, deltaY_nat k j := by
     change ∑ j : Fin n, deltaY_nat k j.val = ∑ j ∈ Finset.range n, deltaY_nat k j
     exact Fin.sum_univ_eq_sum_range (deltaY_nat k) n
   rw [h_eq]
-
   have h2 : 2 ≤ 2 * k + 1 := by omega
   have hmid : 2 * k + 1 ≤ 2 * k + 3 := by omega
   have htail : 2 * k + 3 ≤ n := by dsimp [n]; omega
-
   -- Split range n into four sub-intervals using exact arithmetic bounds
   rw [← Finset.sum_range_add_sum_Ico (deltaY_nat k) htail]
   rw [← Finset.sum_range_add_sum_Ico (deltaY_nat k) hmid]
   rw [← Finset.sum_range_add_sum_Ico (deltaY_nat k) h2]
-
   -- 1. Interval [0, 2)
   have h_head : ∑ j ∈ Finset.range 2, deltaY_nat k j = -4 := by
     rw [Finset.sum_range_succ, Finset.sum_range_one]
     dsimp [deltaY_nat]
     ring
-
   -- 2. Interval [2, 2*k + 1)
   have h_mid1 : ∑ j ∈ Finset.Ico 2 (2 * k + 1), deltaY_nat k j = 0 := by
     have h_zero : ∀ j ∈ Finset.Ico 2 (2 * k + 1), deltaY_nat k j = 0 := by
@@ -204,7 +196,6 @@ lemma deltaY_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j : Fin (2 * (2 * k + 1)), de
       dsimp [deltaY_nat]
       split_ifs <;> first | rfl | omega
     rw [Finset.sum_congr rfl h_zero, Finset.sum_const_zero]
-
   -- 3. Interval [2*k + 1, 2*k + 3)
   have h_mid2 : ∑ j ∈ Finset.Ico (2 * k + 1) (2 * k + 3), deltaY_nat k j = 4 := by
     have h_split : Finset.Ico (2 * k + 1) (2 * k + 3) = {2 * k + 1, 2 * k + 2} := by
@@ -216,7 +207,6 @@ lemma deltaY_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j : Fin (2 * (2 * k + 1)), de
     rw [Finset.sum_insert h_disj, Finset.sum_singleton]
     dsimp [deltaY_nat]
     split_ifs <;> first | rfl | omega | ring
-
   -- 4. Interval [2*k + 3, n)
   have h_tail : ∑ j ∈ Finset.Ico (2 * k + 3) n, deltaY_nat k j = 0 := by
     have h_zero : ∀ j ∈ Finset.Ico (2 * k + 3) n, deltaY_nat k j = 0 := by
@@ -226,7 +216,6 @@ lemma deltaY_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j : Fin (2 * (2 * k + 1)), de
       dsimp [deltaY_nat]
       split_ifs <;> first | rfl | omega
     rw [Finset.sum_congr rfl h_zero, Finset.sum_const_zero]
-
   rw [h_head, h_mid1, h_mid2, h_tail]
   ring
 
@@ -255,6 +244,9 @@ theorem yMatrix_all_row_sums_zero (k : ℕ) (hk : 0 < k) : AllRowSum_C (yMatrix 
 
 
 
+-------------------------------------------------------------
+--Family Z
+-------------------------------------------------------------
 -- Helper lemmas for the 5 seed rows
 
 lemma zRow0_add_neg (k : ℕ) (j : Fin (5 * (2 * k + 1))) :
@@ -286,10 +278,15 @@ theorem zRow0_sum_zero (k : ℕ) : ∑ j, zRow0 k j = 0 := by
   have h2 : (2 : ℂ) ≠ 0 := by norm_num
   exact mul_eq_zero.mp h_double |>.resolve_left h2
 
+--------------------------------------------------------
 --Row 1:
-
+--------------------------------------------------------
 --note for Row1-4, we cannot use the symmetry, hence we do the perturbation to make
 -- the row in sym in term of row0
+
+#check zRow0
+
+
 
 def deltaRow1 (k : ℕ) (j : Fin (5 * (2 * k + 1))) : ℂ :=
   if j.val = 0 then -1
@@ -298,60 +295,214 @@ def deltaRow1 (k : ℕ) (j : Fin (5 * (2 * k + 1))) : ℂ :=
   else if j.val = 3 then 1
   else 0
 
-lemma zRow1_eq_zRow0_add_delta (k : ℕ) (j : Fin (5 * (2 * k + 1))) :
+lemma deltaRow1_sum_zero (k : ℕ) :
+    ∑ j : Fin (5 * (2 * k + 1)), deltaRow1 k j = 0 := by
+  let n := 5 * (2 * k + 1)
+  let w : ℕ → ℂ := fun j =>
+    if j = 0 then -1 else if j = 1 then -1 else if j = 2 then 1 else if j = 3 then 1 else 0
+  have h_eq : (∑ j : Fin n, deltaRow1 k j) = ∑ j ∈ Finset.range n, w j := by
+    change (∑ j : Fin n, w j.val) = ∑ j ∈ Finset.range n, w j
+    exact Fin.sum_univ_eq_sum_range w n
+  rw [h_eq]
+  have h_bound : 4 ≤ n := by dsimp [n]; omega
+  rw [← Finset.sum_range_add_sum_Ico w h_bound]
+  have h_head : ∑ j ∈ Finset.range 4, w j = 0 := by
+    norm_num [w, Finset.sum_range_succ]
+  have h_tail : ∑ j ∈ Finset.Ico 4 n, w j = 0 := by
+    apply Finset.sum_eq_zero
+    intro j hj
+    have hj4 : 4 ≤ j := (Finset.mem_Ico.mp hj).1
+    dsimp [w]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+    · omega
+    omega
+  rw [h_head, h_tail] ; ring
+
+lemma zRow1_eq_zRow0_add_delta (k : ℕ) (hk : 0 < k) (j : Fin (5 * (2 * k + 1))) :
     zRow1 k j = zRow0 k j + deltaRow1 k j := by
   dsimp [zRow1, zRow0, deltaRow1]
   split_ifs <;> ring_nf
+  all_goals push Not at * ; omega
 
 lemma sum_piecewise_row {N h C : ℕ} (h_le_C : h ≤ C) (C_le_N : C ≤ N)
-    (v : Fin N → ℂ) (head_sum : ℂ)
-    (h_head : ∑ j ∈ Finset.range h, v ⟨j, by omega⟩ = head_sum)
-    (h_mid  : ∀ j, h ≤ j → j < C → v ⟨j, by omega⟩ = 1)
-    (h_tail : ∀ j, C ≤ j → j < N → v ⟨j, by omega⟩ = -1) :
-    ∑ j : Fin N, v j = head_sum + (C - h : ℂ) - (N - C : ℂ) := by
-  -- 1. Split Finset.univ into range C and its complement [C, N)
-  rw [← Finset.sum_range_add_sum_Ico v C_le_N]
+    (w : ℕ → ℂ) (head_sum : ℂ)
+    (h_head : ∑ j ∈ Finset.range h, w j = head_sum)
+    (h_mid : ∀ j, h ≤ j → j < C → w j = 1)
+    (h_tail : ∀ j, C ≤ j → j < N → w j = -1) :
+    ∑ j ∈ Finset.range N, w j = head_sum + (C - h : ℂ) - (N - C : ℂ) := by
+  -- 1. Split Finset.range N into range C and its complement [C, N)
+  rw [← Finset.sum_range_add_sum_Ico w C_le_N]
   -- 2. Split range C into range h and middle interval [h, C)
-  rw [← Finset.sum_range_add_sum_Ico v h_le_C]
+  rw [← Finset.sum_range_add_sum_Ico w h_le_C]
   -- 3. Replace head sum using hypothesis
   rw [h_head]
   -- 4. Evaluate middle sum over +1
-  have h_mid_sum : ∑ j ∈ Finset.Ico h C, v ⟨j, by omega⟩ = (C - h : ℂ) := by
-    rw [Finset.sum_congr rfl (fun j hj => h_mid j (Finset.mem_Ico.mp hj).1 (Finset.mem_Ico.mp hj).2)]
-    simp [Finset.sum_const, Card.fund]
+  have h_mid_sum : ∑ j ∈ Finset.Ico h C, w j = (C - h : ℂ) := by
+    rw [Finset.sum_congr rfl (fun j hj =>
+         h_mid j (Finset.mem_Ico.mp hj).1 (Finset.mem_Ico.mp hj).2)]
+    simp only [sum_const, Nat.card_Ico, nsmul_eq_mul, mul_one]
+    exact Nat.cast_sub h_le_C
   -- 5. Evaluate tail sum over -1
-  have h_tail_sum : ∑ j ∈ Finset.Ico C N, v ⟨j, by omega⟩ = -(N - C : ℂ) := by
-    rw [Finset.sum_congr rfl (fun j hj => h_tail j (Finset.mem_Ico.mp hj).1 (Finset.mem_Ico.mp hj).2)]
-    simp [Finset.sum_const, Card.fund]
+  have h_tail_sum : ∑ j ∈ Finset.Ico C N, w j = -(N - C : ℂ) := by
+    rw [Finset.sum_congr rfl (fun j hj =>
+        h_tail j (Finset.mem_Ico.mp hj).1 (Finset.mem_Ico.mp hj).2)]
+    simp only [sum_neg_distrib, sum_const, Nat.card_Ico, nsmul_eq_mul, mul_one, neg_sub]
+    push_cast [C_le_N]
+    ring
   -- Combine all three parts
   rw [h_mid_sum, h_tail_sum]
+  ring
+theorem zRow1_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, zRow1 k j = 0 := by
+  simp_rw [zRow1_eq_zRow0_add_delta k hk]
+  rw [Finset.sum_add_distrib, zRow0_sum_zero k, deltaRow1_sum_zero k, add_zero]
+
+----------------------------------------------------
+-- Row 2
+----------------------------------------------------
+
+theorem zRow2_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, zRow2 k j = 0 := by
+  let n := 5 * (2 * k + 1)
+  let c := (n - 1) / 2 + 3
+  let w : ℕ → ℂ := fun j =>
+    if j = 0 then -1
+    else if j = 1 then -2
+    else if j = 2 then 0
+    else if j = 3 then 2
+    else if j < c then 1
+    else -1
+  have h_eq : (∑ j : Fin n, zRow2 k j) = ∑ j ∈ Finset.range n, w j := by
+    change (∑ j : Fin n, w j.val) = ∑ j ∈ Finset.range n, w j
+    exact Fin.sum_univ_eq_sum_range w n
+  have h_head_bound : 4 ≤ c := by dsimp [c, n]; omega
+  have h_c_bound : c ≤ n := by dsimp [c, n]; omega
+  have h_head : ∑ j ∈ Finset.range 4, w j = -1 := by
+    norm_num [w, Finset.sum_range_succ]
+  have h_mid : ∀ j, 4 ≤ j → j < c → w j = 1 := by
+    intro j hj4 hjc
+    dsimp [w, c, n]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+    · omega
+    · omega
+  have h_tail : ∀ j, c ≤ j → j < n → w j = -1 := by
+    intro j hjc hjn
+    dsimp [w, c, n]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+    · omega
+    · omega
+  rw [h_eq]
+  rw [sum_piecewise_row h_head_bound h_c_bound w (-1) h_head h_mid h_tail]
+  have h_c : c = 5 * k + 5 := by dsimp [c, n]; omega
+  have h_n : n = 5 * (2 * k + 1) := rfl
+  rw [h_c, h_n]
+  push_cast
   ring
 
 
 
-theorem zRow1_sum_zero (k : ℕ) : ∑ j, zRow1 k j = 0 := by
-  simp_rw [zRow1_eq_zRow0_add_delta]
-  rw [Finset.sum_add_distrib, zRow0_sum_zero k, deltaRow1_sum_zero k, add_zero]
 
 
+theorem zRow3_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, zRow3 k j = 0 := by
+  let n := 5 * (2 * k + 1)
+  let c := (n - 1) / 2 + 5
+  let w : ℕ → ℂ := fun j =>
+    if j = 0 then -1
+    else if j = 1 then -2
+    else if j = 2 then -2
+    else if j = 3 then 0
+    else if j < c then 1
+    else -1
+  have h_eq : (∑ j : Fin n, zRow3 k j) = ∑ j ∈ Finset.range n, w j := by
+    change (∑ j : Fin n, w j.val) = ∑ j ∈ Finset.range n, w j
+    exact Fin.sum_univ_eq_sum_range w n
+  have h_head_bound : 4 ≤ c := by dsimp [c, n]; omega
+  have h_c_bound : c ≤ n := by dsimp [c, n]; omega
+  have h_head : ∑ j ∈ Finset.range 4, w j = -5 := by
+    norm_num [w, Finset.sum_range_succ]
+  have h_mid : ∀ j, 4 ≤ j → j < c → w j = 1 := by
+    intro j hj4 hjc
+    dsimp [w, c, n]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+    · omega
+    · omega
+  have h_tail : ∀ j, c ≤ j → j < n → w j = -1 := by
+    intro j hjc hjn
+    dsimp [w, c, n]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+    · omega
+    · omega
+  rw [h_eq]
+  rw [sum_piecewise_row h_head_bound h_c_bound w (-5) h_head h_mid h_tail]
+  have h_c : c = 5 * k + 7 := by dsimp [c, n]; omega
+  have h_n : n = 5 * (2 * k + 1) := rfl
+  rw [h_c, h_n]
+  push_cast
+  ring
+
+theorem zRow4_sum_zero (k : ℕ) (hk : 0 < k) : ∑ j, zRow4 k j = 0 := by
+  let n := 5 * (2 * k + 1)
+  let c := (n - 1) / 2 + 5
+  let w : ℕ → ℂ := fun j =>
+    if j = 0 then -1
+    else if j = 1 then -1
+    else if j = 2 then -1
+    else if j = 3 then -1
+    else if j = 4 then 0
+    else if j < c then 1
+    else -1
+  have h_eq : (∑ j : Fin n, zRow4 k j) = ∑ j ∈ Finset.range n, w j := by
+    change (∑ j : Fin n, w j.val) = ∑ j ∈ Finset.range n, w j
+    exact Fin.sum_univ_eq_sum_range w n
+  have h_head_bound : 5 ≤ c := by dsimp [c, n]; omega
+  have h_c_bound : c ≤ n := by dsimp [c, n]; omega
+  have h_head : ∑ j ∈ Finset.range 5, w j = -4 := by
+    norm_num [w, Finset.sum_range_succ]
+  have h_mid : ∀ j, 5 ≤ j → j < c → w j = 1 := by
+    intro j hj4 hjc
+    dsimp [w, c, n]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+    · omega
+    · omega
+    · omega
+  have h_tail : ∀ j, c ≤ j → j < n → w j = -1 := by
+    intro j hjc hjn
+    dsimp [w, c, n]
+    split_ifs <;> ring_nf
+    · omega
+    · omega
+  rw [h_eq]
+  rw [sum_piecewise_row h_head_bound h_c_bound w (-4) h_head h_mid h_tail]
+  have h_c : c = 5 * k + 7 := by dsimp [c, n]; omega
+  have h_n : n = 5 * (2 * k + 1) := rfl
+  rw [h_c, h_n]
+  push_cast
+  ring
 
 
-theorem zRow2_sum_zero (k : ℕ) : ∑ j, zRow2 k j = 0 := by sorry
-theorem zRow3_sum_zero (k : ℕ) : ∑ j, zRow3 k j = 0 := by sorry
-theorem zRow4_sum_zero (k : ℕ) : ∑ j, zRow4 k j = 0 := by sorry
 
 -- Main theorem for Family Z using Sum_cyclic_0
-theorem zRow_sum_zero (k : ℕ) : (i : ℕ) → ∑ j, zRow k i j = 0
+theorem zRow_sum_zero (k : ℕ) (hk : 0 < k) : (i : ℕ) → ∑ j, zRow k i j = 0
   | 0 => zRow0_sum_zero k
-  | 1 => zRow1_sum_zero k
-  | 2 => zRow2_sum_zero k
-  | 3 => zRow3_sum_zero k
-  | 4 => zRow4_sum_zero k
+  | 1 => zRow1_sum_zero k hk
+  | 2 => zRow2_sum_zero k hk
+  | 3 => zRow3_sum_zero k hk
+  | 4 => zRow4_sum_zero k hk
   | i + 5 => by
     dsimp [zRow]
-    exact Sum_cyclic_0 5 _ (zRow_sum_zero k i)
+    exact Sum_cyclic_0 5 _ (zRow_sum_zero k hk i)
 
-theorem zMatrix_all_row_sums_zero (k : ℕ) : AllRowSum_C (zMatrix k) := by
+theorem zMatrix_all_row_sums_zero (k : ℕ) (hk : 0 < k) : AllRowSum_C (zMatrix k) := by
   intro i
   dsimp [AllRowSum_C, rowSumC, zMatrix]
-  exact zRow_sum_zero k i.val
+  exact zRow_sum_zero k hk i.val
