@@ -1,10 +1,134 @@
 import LeanProject.SkewSymmetryProperties
 import LeanProject.Smooth_cycle
 
-/-! Smoothability of cyclic adjacent edges in the X, Y, and Z families.
+/-! Smoothability of cyclic adjacent edges in the C, X₄, X₅, Y, and Z families.
 The periodic families reduce to their seed edges by simultaneous cyclic shifts. -/
 
 namespace SkewMatrixGraph
+
+section CFamily
+
+set_option linter.style.haveILetI false
+
+/-- Away from columns 0 and 1, moving one step right can only decrease the seed value.
+The drop is 0, 1, or (when the two cutoffs meet) 2. -/
+private theorem cFirstRow_adjacent_drop {n k : ℕ} [NeZero n] (h : ValidC n k)
+    (l : Fin n) (hl0 : l ≠ 0) (hl1 : l ≠ 1) :
+    ∃ m : ℕ, cFirstRow n k (l - 1) - cFirstRow n k l = (m : ℂ) := by
+  have hx0 : l.val ≠ 0 := by
+    intro hz
+    apply hl0
+    apply Fin.ext
+    simpa using hz
+  have hx1 : l.val ≠ 1 := by
+    intro hz
+    apply hl1
+    apply Fin.ext
+    simpa [Fin.val_one', Nat.mod_eq_of_lt (by have := h.2.1; omega : 1 < n)] using hz
+  have hx2 : 2 ≤ l.val := by omega
+  have hp : (l - 1).val = l.val - 1 := Fin.val_sub_one_of_ne_zero hl0
+  have hp0 : l.val - 1 ≠ 0 := by omega
+  have hpfin : l - 1 ≠ 0 := by
+    intro hz
+    have hv := congrArg Fin.val hz
+    simp [hp, hp0] at hv
+  have hk : 1 ≤ k := h.1
+  have hsep : 2 * k < n := h.2.2
+  refine ⟨(if l.val = k + 1 then 1 else 0) +
+    (if l.val = n - k then 1 else 0), ?_⟩
+  simp only [cFirstRow]
+  rw [hp]
+  -- The two indicators record the two possible downward jumps of the seed row.
+  split_ifs <;> (try omega) <;> norm_num
+
+/-- The first adjacent edge is smoothable: its coloring coefficients are seed drops. -/
+private theorem cMatrix_base_adjacent_smoothable {n k : ℕ} [NeZero n] (h : ValidC n k) :
+    IsSmoothableEdge (cMatrix n k) 0 1 := by
+  have hone : cFirstRow n k (1 : Fin n) = 1 := by
+    have hk := h.1
+    have hn := h.2.1
+    have hmod : 1 % n = 1 := Nat.mod_eq_of_lt (by omega)
+    simp [cFirstRow, hmod, hk]
+  refine ⟨?_, ?_, ?_⟩
+  · intro he
+    have hv := congrArg Fin.val he
+    have hn := h.2.1
+    simp at hv
+    omega
+  · simp [cMatrix_apply h, hone]
+  · intro l hl0 hl1
+    obtain ⟨m, hm⟩ := cFirstRow_adjacent_drop h l hl0 hl1
+    refine ⟨m, ?_⟩
+    simpa [cMatrix_apply h, cFirstRow_neg h, hone, sub_eq_add_neg] using hm
+
+/-- Adding the same cyclic offset to both indices leaves a circulant entry unchanged. -/
+private theorem cMatrix_add_invariant {n k : ℕ} [NeZero n] (h : ValidC n k)
+    (a b t : Fin n) :
+    cMatrix n k (a + t) (b + t) = cMatrix n k a b := by
+  rw [cMatrix_apply h, cMatrix_apply h]
+  congr 1
+  abel
+
+/-- Every cyclic adjacent edge is smoothable, including the wraparound edge. -/
+theorem cMatrix_adjacent_smoothable {n k : ℕ} (h : ValidC n k) (i : Fin n) :
+    IsSmoothableEdge (cMatrix n k) i (finRotate n i) := by
+  haveI : NeZero n := ⟨by have := h.2.1; omega⟩
+  rw [finRotate_apply]
+  obtain ⟨hbne, hbentry, hbcolor⟩ := cMatrix_base_adjacent_smoothable h
+  have hentry : cMatrix n k i (i + 1) = cMatrix n k 0 1 := by
+    simpa [add_comm] using cMatrix_add_invariant h 0 1 i
+  refine ⟨?_, ?_, ?_⟩
+  · intro he
+    have h01 : (0 : Fin n) = 1 := by
+      apply add_right_cancel (b := i)
+      simpa [add_comm] using he
+    exact hbne h01
+  · rw [hentry]
+    exact hbentry
+  · intro l hli hlj
+    let x : Fin n := l - i
+    have hx0 : x ≠ 0 := by
+      intro hx
+      have hli' : l = i := by
+        calc
+          l = x + i := by dsimp [x]; abel
+          _ = i := by simp [hx]
+      exact hli hli'
+    have hx1 : x ≠ 1 := by
+      intro hx
+      have hlj' : l = i + 1 := by
+        calc
+          l = x + i := by dsimp [x]; abel
+          _ = i + 1 := by rw [hx]; abel
+      exact hlj hlj'
+    obtain ⟨m, hm⟩ := hbcolor x hx0 hx1
+    refine ⟨m, ?_⟩
+    have hleft : cMatrix n k (i + 1) l = cMatrix n k 1 x := by
+      simpa [x, add_comm, sub_add_cancel] using cMatrix_add_invariant h 1 x i
+    have hright : cMatrix n k l i = cMatrix n k x 0 := by
+      simpa [x, sub_add_cancel] using cMatrix_add_invariant h x 0 i
+    rw [hleft, hright, hentry]
+    exact hm
+
+theorem cMatrix_base_edge (n k : ℕ) (h_valid : ValidC n k) :
+    IsSmoothableEdge (cMatrix n k)
+      ⟨0, by have := h_valid.2.1; omega⟩
+      ⟨1, by have := h_valid.2.1; omega⟩ := by
+  haveI : NeZero n := ⟨by have := h_valid.2.1; omega⟩
+  have hj : finRotate n (⟨0, by have := h_valid.2.1; omega⟩ : Fin n) =
+      (⟨1, by have := h_valid.2.1; omega⟩ : Fin n) := by
+    apply Fin.ext
+    simp [finRotate_apply, Fin.add_def,
+      Nat.mod_eq_of_lt (by have := h_valid.2.1; omega : 1 < n)]
+  rw [← hj]
+  exact cMatrix_adjacent_smoothable h_valid
+    (⟨0, by have := h_valid.2.1; omega⟩ : Fin n)
+
+theorem cMatrix_all_edges (n k : ℕ) (h_valid : ValidC n k) (i : Fin n) :
+    IsSmoothableEdge (cMatrix n k) i (finRotate n i) := by
+  exact cMatrix_adjacent_smoothable h_valid i
+
+end CFamily
 
 /-- Every cyclic adjacent edge of the fixed X₄ matrix is smoothable. -/
 theorem x4Matrix_adjacent_smoothable (i : Fin 4) :

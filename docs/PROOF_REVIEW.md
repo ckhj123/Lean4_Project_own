@@ -16,7 +16,7 @@ does not change these definitions or weaken the predicates.
 | --- | --- | --- | --- | --- | --- |
 | C | Zero row sum: `SkewMatrixGraph.cMatrix_row_sum_zero` | `ValidC n k` | AI, `CFamilyProperties.lean`; Jason also proved the related `cMatrix_C_all_row_sums_zero` in `AddSumLemma.lean` | Verified | Review pending |
 | C | Skew symmetry: `SkewMatrixGraph.cMatrix_skewSymmetric` | `ValidC n k` | AI, `CFamilyProperties.lean` | Verified | Review pending |
-| C | Cyclic adjacent smoothability: `SkewMatrixGraph.cMatrix_adjacent_smoothable` | `ValidC n k` | AI, `CFamilyProperties.lean`; Jason's `Smooth_cycle.lean` supplies a cyclic-equivalence framework, with later AI completions | Verified | Review pending |
+| C | Cyclic adjacent smoothability: `SkewMatrixGraph.cMatrix_adjacent_smoothable` | `ValidC n k` | AI, `SmoothabilityProperties.lean`; Jason's `Smooth_cycle.lean` supplies a cyclic-equivalence framework, with later AI completions | Verified | Review pending |
 | X4 | Zero row sum: `x4Matrix_all_row_sums_zero` | Fixed matrix | AI addition to Jason's `AddSumLemma.lean` in `0cd49a8` | Verified | Review pending |
 | X4 | Skew symmetry: `SkewMatrixGraph.x4Matrix_skewSymmetric` | Fixed matrix | AI, `SkewSymmetryProperties.lean` | Verified | Review pending |
 | X4 | Cyclic adjacent smoothability: `SkewMatrixGraph.x4Matrix_adjacent_smoothable` | Fixed matrix | AI, `SmoothabilityProperties.lean` | Verified | Review pending |
