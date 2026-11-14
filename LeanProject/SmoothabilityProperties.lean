@@ -118,7 +118,7 @@ theorem cMatrix_base_edge (n k : ℕ) (h_valid : ValidC n k) :
   have hj : finRotate n (⟨0, by have := h_valid.2.1; omega⟩ : Fin n) =
       (⟨1, by have := h_valid.2.1; omega⟩ : Fin n) := by
     apply Fin.ext
-    simp [finRotate_apply, Fin.add_def,
+    simp [finRotate_apply,
       Nat.mod_eq_of_lt (by have := h_valid.2.1; omega : 1 < n)]
   rw [← hj]
   exact cMatrix_adjacent_smoothable h_valid
@@ -188,12 +188,12 @@ private theorem periodic_matrix_shift {p m : ℕ} [NeZero (p * m)]
       (j + Fin.ofNat (p * m) (p * q)) = row i.val j := by
   let n := p * m
   let s := p * q
-  haveI : NeZero n := ⟨by dsimp [n]; exact Nat.ne_of_gt (Nat.mul_pos hp hm)⟩
+  have : NeZero n := ⟨by dsimp [n]; exact Nat.ne_of_gt (Nat.mul_pos hp hm)⟩
   have hs : s < n := Nat.mul_lt_mul_of_pos_left hq hp
   have hcast : (Fin.ofNat n s).val = s := by
     simp [Fin.ofNat, Nat.mod_eq_of_lt hs]
   have hval : (i + Fin.ofNat n s).val = (i.val + s) % n := by
-    simp [Fin.val_add, hcast, n]
+    simp [Fin.val_add,  n]
   have hshift (u : ℕ) : cyclicRightShift n (row u) = row u := by
     funext x
     rw [cyclicRightShift_apply_sub]
@@ -242,7 +242,7 @@ private theorem periodic_adjacent_smoothable {p m : ℕ} [NeZero (p * m)]
   have ha : a < p := Nat.mod_lt _ hp
   have hq : q < m := by
     apply (Nat.div_lt_iff_lt_mul hp).2
-    simpa [q, n, mul_comm] using i.isLt
+    simp [ mul_comm]
   have hval : i.val = s + a := by
     simpa [q, a, s, Nat.add_comm] using (Nat.mod_add_div i.val p).symm
   have hcast (u v : ℕ) : Fin.ofNat n (u + v) =
@@ -346,7 +346,7 @@ private theorem y_base12 (k : ℕ) (hk : 0 < k) :
     by_cases ht0 : t.val = 0
     · have ht : t = (⟨0, by dsimp [N]; omega⟩ : Fin N) := Fin.ext ht0
       rw [ht]
-      haveI : NeZero N := ⟨by dsimp [N]; omega⟩
+      have : NeZero N := ⟨by dsimp [N]; omega⟩
       have htwo : (Fin.ofNat N 2).val = 2 := by
         simp [Fin.ofNat, Nat.mod_eq_of_lt (by dsimp [N]; omega : 2 < N)]
       have hv : ((⟨0, by dsimp [N]; omega⟩ : Fin N) - Fin.ofNat N 2).val =
@@ -372,7 +372,7 @@ private theorem y_base12 (k : ℕ) (hk : 0 < k) :
       simp [hzero', hone', hnot]
       norm_num
     · have htge : 3 ≤ t.val := by omega
-      haveI : NeZero N := ⟨by dsimp [N]; omega⟩
+      have : NeZero N := ⟨by dsimp [N]; omega⟩
       have htwo : (Fin.ofNat N 2).val = 2 := by
         simp [Fin.ofNat, Nat.mod_eq_of_lt (by dsimp [N]; omega : 2 < N)]
       have hle : Fin.ofNat N 2 ≤ t := by
@@ -400,14 +400,14 @@ private theorem y_base12 (k : ℕ) (hk : 0 < k) :
         have hcut : (t.val - 2 < N / 2) ↔ t.val < N / 2 + 2 := by omega
         have htest : (t.val ≤ 2 * k + 2) ↔ t.val < 2 * k + 3 := by omega
         refine ⟨0, ?_⟩
-        simp [hzero, hone, htzero, ht1val, hcut, htest]
+        simp [hzero, hone, htzero, ht1val,  htest]
 
 
 /-- Every cyclic adjacent Y-edge is smoothable when the seed dimensions are nondegenerate. -/
 theorem yMatrix_adjacent_smoothable (k : ℕ) (hk : 0 < k)
     (i : Fin (2 * (2 * k + 1))) :
     IsSmoothableEdge (yMatrix k) i (finRotate (2 * (2 * k + 1)) i) := by
-  haveI : NeZero (2 * (2 * k + 1)) := ⟨by omega⟩
+  have : NeZero (2 * (2 * k + 1)) := ⟨by omega⟩
   change IsSmoothableEdge (fun j : Fin (2 * (2 * k + 1)) => yRow k j.val)
     i (finRotate (2 * (2 * k + 1)) i)
   apply periodic_adjacent_smoothable (by omega : 0 < 2)
@@ -443,7 +443,7 @@ private theorem z_large_adjacent_difference (k a b : ℕ) (w : ℂ) (r : ℕ)
     simp [hleft, hright]
   · by_cases hright : t.val < zSeedCutoff k b
     · refine ⟨r, ?_⟩
-      simp only [if_pos hright, if_neg hleft]
+      simp only [ite_eq_left hright, ite_eq_right hleft]
       calc
         (1 : ℂ) - (-1) = 2 := by ring
         _ = (r : ℂ) * w := hw
@@ -459,7 +459,7 @@ private theorem z_base01 (k : ℕ) (hk : 0 < k) :
   let j : Fin N := ⟨1, by dsimp [N]; omega⟩
   change IsSmoothableEdge (zMatrix k) i j
   have hedge : zMatrix k i j = 1 := by
-    norm_num [zMatrix, zRow, zRow0, i, j] <;> omega
+    norm_num [zMatrix, zRow, zRow0, i, j] ; omega
   refine ⟨?_, ?_, ?_⟩
   · intro h
     have hv := congrArg Fin.val h
@@ -487,19 +487,19 @@ private theorem z_base01 (k : ℕ) (hk : 0 < k) :
     · have ht0fin : t ≠ (0 : Fin N) := by
         intro hz
         apply ht0val
-        simpa [hz]
+        simp [hz]
       have hcut : t.val ≤ (5 * (2 * k + 1) - 1) / 2 := by rw [hhalf]; omega
       by_cases h2 : t.val = 2
       · refine ⟨1, ?_⟩
-        simp [zRow, zRow0, zRow1, ht0fin, ht1val, h2, hcut, hhalf]
+        simp [zRow, zRow0, zRow1, h2,hhalf]
         norm_num
       · by_cases h3 : t.val = 3
         · refine ⟨1, ?_⟩
-          simp [zRow, zRow0, zRow1, ht0fin, ht1val, h2, h3, hcut, hhalf]
+          simp [zRow, zRow0, zRow1, h3, hhalf]
           norm_num [hk]
         · have h4 : t.val = 4 := by omega
           refine ⟨0, ?_⟩
-          simp [zRow, zRow0, zRow1, ht0fin, ht1val, h2, h3, h4, hcut, hhalf]
+          simp [zRow, zRow0, zRow1, h4, hhalf]
     · have hlarge : 5 ≤ t.val := by omega
       rw [zRow_large k 1 (by omega) t hlarge,
         zRow_large k 0 (by omega) t hlarge]
@@ -610,7 +610,7 @@ private theorem z_base45 (k : ℕ) (hk : 0 < k) :
   let j : Fin N := ⟨5, by dsimp [N]; omega⟩
   change IsSmoothableEdge (zMatrix k) i j
   have hedge : zMatrix k i j = 1 := by
-    norm_num [zMatrix, zRow, zRow4, i, j] <;> omega
+    norm_num [zMatrix, zRow, zRow4, i, j] ; omega
   refine ⟨?_, ?_, ?_⟩
   · intro h
     have hv := congrArg Fin.val h
@@ -630,7 +630,7 @@ private theorem z_base45 (k : ℕ) (hk : 0 < k) :
     have ht5val : t.val ≠ 5 := by
       intro hz
       exact ht5 (Fin.ext (by simpa [j] using hz))
-    haveI : NeZero N := ⟨by dsimp [N]; omega⟩
+    have : NeZero N := ⟨by dsimp [N]; omega⟩
     have hfive : (Fin.ofNat N 5).val = 5 := by
       simp [Fin.ofNat, Nat.mod_eq_of_lt (by dsimp [N]; omega : 5 < N)]
     by_cases hsmall : t.val < 5
@@ -679,16 +679,16 @@ private theorem z_base45 (k : ℕ) (hk : 0 < k) :
         simp [hnonzero, h0, h1, h2, h3, h4, hfirst, hnext]
       · by_cases hboundary : t.val = 5 * k + 7
         · refine ⟨2, ?_⟩
-          simp [hnonzero, h0, h1, h2, h3, h4, hfirst, hboundary] <;> norm_num
+          simp [hboundary] ; norm_num
         · refine ⟨0, ?_⟩
           have hnext : ¬ t.val < 5 * k + 8 := by omega
-          simp [hnonzero, h0, h1, h2, h3, h4, hfirst, hboundary, hnext]
+          simp [hnonzero, h0, h1, h2, h3, h4, hfirst, hnext]
 
 /-- All cyclic adjacent edges of the Z matrix are smoothable for `k ≥ 1`. -/
 theorem zMatrix_adjacent_smoothable (k : ℕ) (hk : 0 < k)
     (i : Fin (5 * (2 * k + 1))) :
     IsSmoothableEdge (zMatrix k) i (finRotate (5 * (2 * k + 1)) i) := by
-  haveI : NeZero (5 * (2 * k + 1)) := ⟨by omega⟩
+  have : NeZero (5 * (2 * k + 1)) := ⟨by omega⟩
   have hcast (a : ℕ) (ha : a < 5 * (2 * k + 1)) :
       Fin.ofNat (5 * (2 * k + 1)) a =
         (⟨a, ha⟩ : Fin (5 * (2 * k + 1))) := by
