@@ -57,7 +57,7 @@ theorem cMatrix_shift_invariant (n k : ℕ) (i j : Fin n) :
   by_cases hn : n = 0
   · subst n
     exact Fin.elim0 i
-  haveI : NeZero n := ⟨hn⟩
+  have : NeZero n := ⟨hn⟩
   have hcast (x : Fin n) : Fin.ofNat n x.val = x := by
     apply Fin.ext
     simp [Fin.ofNat, Nat.mod_eq_of_lt x.isLt]
@@ -67,7 +67,7 @@ theorem cMatrix_shift_invariant (n k : ℕ) (i j : Fin n) :
       (cyclicShiftEquiv 1 j) = cyclicRightShift i.val (cFirstRow n k) j
   rw [cyclicRightShift_apply_sub, cyclicRightShift_apply_sub,
     hcast, hcast, hshift i, hshift j]
-  abel
+  abel_nf
 
 
 theorem IsSmoothableEdge_cMatrix_shift (n k : ℕ) (i j : Fin n) :
